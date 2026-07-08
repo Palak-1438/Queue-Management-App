@@ -18,8 +18,9 @@ QueueFlow provides secure and dynamic queue management with a beautiful interfac
 
 ## 📸 Screenshots
 
-![Dashboard Placeholder](#)
-![Queue Management Placeholder](#)
+<img width="1918" height="856" alt="image" src="https://github.com/user-attachments/assets/a7a2a7ed-2cb2-415f-9f57-d4b4dff19a41" />
+<img width="1010" height="811" alt="image" src="https://github.com/user-attachments/assets/974d8c3a-87c6-491f-80f7-6c8ad300fd3d" />
+
 
 ## 🛠 Tech Stack
 
