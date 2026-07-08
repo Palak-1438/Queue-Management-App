@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Manager {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+}
+
+model Queue {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  tokens    Token[]
+}
+
+model Token {
+  id          String    @id @default(cuid())
+  tokenNumber String
+  personName  String
+  phone       String
+  status      String    @default("Waiting") // Waiting, Serving, Completed, Cancelled
+  position    Int
+  createdAt   DateTime  @default(now())
+  calledAt    DateTime?
+  completedAt DateTime?
+  queueId     String
+  queue       Queue     @relation(fields: [queueId], references: [id], onDelete: Cascade)
+}
