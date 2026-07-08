@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['lucide-react'], // Ensure common packages are transpiled if needed
+  transpilePackages: ['lucide-react', '@prisma/client', '@prisma/adapter-pg'],
 };
 
 export default nextConfig;
