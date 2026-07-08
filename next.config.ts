@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ['lucide-react'], // Ensure common packages are transpiled if needed
 };
 
 export default nextConfig;
