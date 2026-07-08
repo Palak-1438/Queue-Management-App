@@ -3,6 +3,14 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
+const fallbackAuthUrl = process.env.NEXTAUTH_URL ??
+  process.env.URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+
+if (fallbackAuthUrl) {
+  process.env.NEXTAUTH_URL = fallbackAuthUrl;
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
