@@ -1,12 +1,7 @@
 const bcrypt = require('bcrypt');
-const { Pool } = require('pg');
 const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
 
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/postgres';
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const email = process.env.ADMIN_EMAIL || 'admin@queueflow.com';
@@ -46,6 +41,5 @@ const name = process.env.ADMIN_NAME || 'Admin Manager';
     process.exit(1);
   } finally {
     await prisma.$disconnect();
-    await pool.end();
   }
 })();
