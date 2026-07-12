@@ -45,6 +45,7 @@ export async function registerUser(data: RegisterInput) {
     if (error instanceof z.ZodError) {
       return { success: false, error: error.issues[0].message };
     }
-    return { success: false, error: "Failed to register user" };
+    const errorMessage = error instanceof Error ? error.message : "Failed to register user";
+    return { success: false, error: errorMessage };
   }
 }
