@@ -19,16 +19,16 @@ const name = process.env.ADMIN_NAME || 'Admin Manager';
   }
 
   try {
-    const existing = await prisma.manager.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email } });
 
     if (existing) {
-      console.log(`Manager already exists: ${existing.email}`);
+      console.log(`User already exists: ${existing.email}`);
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const manager = await prisma.manager.create({
+    const user = await prisma.user.create({
       data: {
         email,
         name,
@@ -36,13 +36,13 @@ const name = process.env.ADMIN_NAME || 'Admin Manager';
       },
     });
 
-    console.log('Created manager:', manager.email);
+    console.log('Created user:', user.email);
     console.log('Use this password to login:', password);
     if (isVercel) {
       console.log('Vercel deployment should now be able to sign in with these credentials.');
     }
   } catch (error) {
-    console.error('Failed to seed manager:', error);
+    console.error('Failed to seed user:', error);
     process.exit(1);
   } finally {
     await prisma.$disconnect();
