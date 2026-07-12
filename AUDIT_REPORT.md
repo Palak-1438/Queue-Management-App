@@ -14,6 +14,26 @@ A complete audit and comprehensive repair of the Queue Management System has bee
 
 ## Issues Found & Fixed
 
+### **0. Prisma Query Engine (CRITICAL FIX)** ✅
+
+#### Issue:
+- Error: `libquery_engine-rhel-openssl-3.0.x.so.node not found`
+- Registration failing: "Failed to register user"
+- Root cause: PrismaPg adapter bundler incompatibility
+
+#### Solution:
+- Removed `@prisma/adapter-pg` from package.json
+- Switched to standard PrismaClient without custom adapter
+- Updated lib/prisma.ts, next.config.ts, prisma/seed.js
+- Build now compiles successfully with 0 errors
+
+#### Test Results:
+- ✅ Registration: New user created successfully
+- ✅ Login: Users can authenticate with new accounts
+- ✅ Dashboard: Displays correctly after login
+
+---
+
 ### **1. Authentication System** ✅
 
 #### Issues Found:
