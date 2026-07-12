@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/lib/validations";
+import { registerSchema } from "@/lib/validations";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2, Mail, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { registerUser } from "@/actions/authActions";
 import Link from "next/link";
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -23,29 +23,35 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: false },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
-      });
+      const result = await registerUser(data);
 
-      if (result?.error) {
+      if (!result.success) {
         toast({
-          title: "Error",
-          description: "Invalid credentials",
+          title: "Registration Failed",
+          description: result.error,
           variant: "destructive",
         });
       } else {
-        router.push("/");
-        router.refresh();
+        toast({
+          title: "Success",
+          description: "Account created successfully! Redirecting to login...",
+        });
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
       }
     } catch (error) {
       toast({
@@ -73,11 +79,25 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
             <span className="text-white font-bold text-2xl">Q</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Welcome to QueueFlow</h1>
-          <p className="text-slate-300 text-sm">Sign in to manage your queues.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-slate-300 text-sm">Join QueueFlow to manage your queues.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-200">Full Name</label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+              <input
+                {...register("name")}
+                type="text"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                placeholder="John Doe"
+              />
+            </div>
+            {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
+          </div>
+
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-200">Email</label>
             <div className="relative">
@@ -86,7 +106,7 @@ export default function LoginPage() {
                 {...register("email")}
                 type="email"
                 className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                placeholder="admin@queueflow.com"
+                placeholder="john@example.com"
               />
             </div>
             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
@@ -106,18 +126,18 @@ export default function LoginPage() {
             {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
           </div>
 
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-200">Confirm Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
               <input
-                type="checkbox"
-                {...register("rememberMe")}
-                className="rounded border-white/10 bg-white/5 text-indigo-500 focus:ring-indigo-500/50"
+                {...register("confirmPassword")}
+                type="password"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                placeholder="••••••••"
               />
-              Remember me
-            </label>
-            <a href="#" className="text-indigo-400 hover:text-indigo-300 transition-colors">
-              Forgot password?
-            </a>
+            </div>
+            {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
           <button
@@ -125,13 +145,13 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center disabled:opacity-70 shadow-lg shadow-indigo-500/25"
           >
-            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
           </button>
 
           <p className="text-center text-sm text-slate-400">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 transition-colors">
-              Create one
+            Already have an account?{" "}
+            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+              Sign in
             </Link>
           </p>
         </form>
