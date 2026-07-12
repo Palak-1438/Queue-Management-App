@@ -3,13 +3,17 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
+// Set NEXTAUTH_URL automatically on Vercel
 const fallbackAuthUrl = process.env.NEXTAUTH_URL ??
   process.env.URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 if (fallbackAuthUrl) {
   process.env.NEXTAUTH_URL = fallbackAuthUrl;
 }
+
+// Ensure NEXTAUTH_SECRET is set (will be available via environment variables)
+const authSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV !== 'production' ? 'dev-secret-key' : undefined);
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -68,5 +72,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
 };
